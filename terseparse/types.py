@@ -1,6 +1,7 @@
 """Namespace for all type objects"""
 import re
 import logging
+import os
 from argparse import ArgumentTypeError
 
 from .utils import classproperty
