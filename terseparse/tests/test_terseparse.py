@@ -1,6 +1,6 @@
 import unittest
 
-from terseparse import Arg, Group, KW, Parser, SubParsers, types
+from terseparse import Arg, Group, KW, Parser, SubParsers, types, Lazy
 from . import assert_conv_fails
 
 
@@ -57,21 +57,19 @@ class TestTerseParse(unittest.TestCase):
         self.assertEqual(args.ns.a, 'a')
         self.assertEqual(args.ns.b, 'b')
 
-    def test_group_in_subparsers(self):
-        """TODO: Not supported yet
-        p = Parser('p', 'p-description',
-            SubParsers('sp', 'sp-description',
-                Group('grp', 'grp-description',
-                    Arg('a'),
-                    Arg('b')),
-                Parser('sp-p', 'sp-p-description',
-                    Arg('c'))))
+    def test_lazy(self):
+        p = Parser('p', 'description',
+                Arg('--b', 'description', types.Int.positive,
+                    Lazy(lambda ns: ns.a)),
+                Arg('a', 'description', types.Int.positive))
 
-        args = p.parse_args('grp a b c'.split())
-        self.assertEqual(args.a, 'a')
-        self.assertEqual(args.b, 'b')
-        self.assertEqual(args.c, 'c')
-        """
+        parser, args = p.parse_args('1234'.split())
+        self.assertEqual(args.ns.a, 1234)
+        self.assertEqual(args.ns.b, 1234)
+
+        parser, args = p.parse_args('--b 4321 1234'.split())
+        self.assertEqual(args.ns.a, 1234)
+        self.assertEqual(args.ns.b, 4321)
 
 
 class TestTerseParseTypes(unittest.TestCase):

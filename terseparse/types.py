@@ -163,7 +163,7 @@ class Dict(Type):
         return obj
 
 
-FILE_MODES = {
+MODE_STRS = {
     'r': 'readable',
     'w': 'writable',
     'rw': 'readable and writeable'}
@@ -184,14 +184,35 @@ class File(Type):
     
     def __init__(self, mode):
         self.name = 'file'
-        self.mode = FILE_MODES[mode]
+        self.mode = mode
+        self.mode_str = MODE_STRS[mode]
         self.description = 'file({})'.format(mode)
 
     def convert(self, val):
         try:
             return file(val, self.mode)
         except IOError:
-            self.fail(val, 'Must be a {} file'.format(self.mode))
+            self.fail(val, 'Must be a {} file'.format(self.mode_str))
+
+
+DIR_MODES = {
+    'r': os.R_OK,
+    'w': os.W_OK,
+    'rw': os.R_OK | os.W_OK
+}
+
+
+class Dir(File):
+    def __init__(self, mode):
+        self.name = 'dir'
+        self.mode = DIR_MODES[mode]
+        self.mode_str = MODE_STRS[mode]
+        self.description = 'dir({})'.format(mode)
+
+    def convert(self, val):
+        if not os.access(val, self.mode):
+            self.fail(val, 'Must be a {} directory'.format(self.mode_str))
+        return val
 
 
 class Int(Type):
