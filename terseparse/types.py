@@ -27,6 +27,8 @@ class Type(object):
         return self.name
 
     def __or__(self, obj):
+        if isinstance(obj, str):
+            obj = Keyword(obj)
         return Or(self, obj)
 
     def fail(self, val_str, message):
