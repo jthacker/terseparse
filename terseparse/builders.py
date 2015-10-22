@@ -211,7 +211,11 @@ class Arg(object):
         if self.type:
             kwargs['type'] = self.type
         if self.help:
-            kwargs['help'] = self.help
+            if self.type:
+                type_str = '<{}>'.format(str(self.type))
+                kwargs['help'] = type_str + ' ' + self.help
+            else:
+                kwargs['help'] = self.help
         for k, v in _kwargs.iteritems():
             kwargs[k] = v
         if self.hidden:

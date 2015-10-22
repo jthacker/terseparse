@@ -32,6 +32,7 @@ class ParsedArgsNamespace(object):
     def __init__(self, keywords, defaults):
         self._keywords = keywords
         self._defaults = defaults or {}
+        self._fields = set(self._keywords.keys() + self._defaults.keys())
     
     def __getattr__(self, key):
         val = self._keywords.get(key)
@@ -46,9 +47,16 @@ class ParsedArgsNamespace(object):
                 val = val(self)
                 self._keywords[key] = val
             return val
+        return super(ParsedArgsNamespace, self).__getattr__(key)
+
+    def __getitem__(self, key):
+        return self.__getattr__(key)
+
+    def __iter__(self):
+        return iter((k, self[k]) for k in self._fields)
    
     def __dir__(self):
-        return sorted(set(dir(type(self)) + self._keywords + self._defaults))
+        return sorted(set(dir(type(self)) + self._fields))
 
     def __repr__(self):
         return 'ParsedArgsNamespace(%r, %r)' % (self._keywords, self._defaults)
@@ -61,21 +69,20 @@ class ParsedArgs(object):
     def items(self):
         return self.ns._keywords.items()
 
-
-def _print_args(args):
-    spacer = ' ' * 4
-    items = args.items()
-    arg_len = max(3, max(len(arg) for arg, val in items))
-    hfmt = '{:{}}'+spacer+'{}'
-    lfmt = '{:{}}'+spacer+'{!r}'
-    msg = '\n'.join(lfmt.format(arg, arg_len, val) for arg, val in items)
-    title = 'TerseParse Debug Information:' 
-    header =  hfmt.format('arg', arg_len, 'value') + '\n'
-    header += hfmt.format('---', arg_len, '-----')
-    print(title)
-    print('=' * len(title))
-    print(header)
-    print(msg)
+    def pprint(self):
+        spacer = ' ' * 4
+        items = self.items()
+        arg_len = max(3, max(len(arg) for arg, val in items))
+        hfmt = '{:{}}'+spacer+'{}'
+        lfmt = '{:{}}'+spacer+'{!r}'
+        msg = '\n'.join(lfmt.format(arg, arg_len, val) for arg, val in items)
+        title = 'Parsed Arguments:'
+        header =  hfmt.format('arg', arg_len, 'value') + '\n'
+        header += hfmt.format('---', arg_len, '-----')
+        print(title)
+        print('=' * len(title))
+        print(header)
+        print(msg)
     
 
 class RootParser(ArgumentParser):
@@ -147,5 +154,5 @@ class RootParser(ArgumentParser):
         ns = parser.parse_args(args, namespace)
         parsed_args = ParsedArgs(OrderedDict(ns._get_kwargs()), defaults)
         if self._debug:
-            _print_args(parsed_args)
+            parsed_args.pprint()
         return parser, parsed_args

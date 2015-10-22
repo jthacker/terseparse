@@ -17,9 +17,11 @@ $ pip install git+git://github.com/jthacker/terseparse.git@v1.0
 - Subparser names and descriptions are displayed in help messages
 - Arguments in subparsers are added to all childer parsers
 - Debugging of the parser can be done at runtime
+- Unique namespace for arguments, no conflicts with other properties
 
 
 ## Usage
+This example is taken from the argparse [documentation](https://docs.python.org/3/library/argparse.html#example)
 ```python
 p = Parser('cmd', 'Process some integers',
     Arg('integers', 'an integer for the accumulator',
@@ -30,3 +32,15 @@ p = Parser('cmd', 'Process some integers',
 _, args = p.parse_args('1 2 3 4'.split())
 print(args.ns.integers)
 ```
+
+### Argument Namespace
+Unlike argparse, arguments are stored in a unique namespace under args.ns.
+This is done to avoid conflicts between existing methods in args and parameter
+values being parsed (e.g. .keys() would conflict with a keys parameter).
+
+
+
+### Debugging
+Terseparse argument parsing can be debugged by passing in --terseparse-debug
+as the first argument. It must be the first argument so that the parsing of the rest
+of the arguments can take place as they are parsed.
