@@ -124,6 +124,14 @@ class TestTerseParseTypes(unittest.TestCase):
         self.assertEqual(t('a=0,b=asdf'), {'a': 0, 'b': 'asdf'})
         self.assertEqual(t('a:1, b=asdf'), {'a': 1, 'b': 'asdf'})
 
+    def test_Dict_default_value(self):
+        t = types.Dict({'a': types.Int() | types.Keyword('', 5)})
+
+        assert_conv_fails(t, 'a:a')
+
+        self.assertEqual(t('a'), {'a': 5})
+        self.assertEqual(t('a:5'), {'a': 5})
+
     def test_Dict_punctuation(self):
         t = types.Dict({'a': str, 'b': str})
         self.assertEqual(t('a:/a/b/c/d,b:/e/f/g'), {'a': '/a/b/c/d', 'b': '/e/f/g'})

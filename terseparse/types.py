@@ -117,6 +117,10 @@ class Dict(Type):
     >>> 'a:b, c=d'
     >>> 'a=b,,,c=d'
 
+    If no value is given, then it is passed to the validator as the empty string (ie '')
+    >>> Dict({'a': Int() | Keyword('', None)})('a')
+    {'a': None}
+
     Keys can be specified multiple times, the latest (farthest to right) key's
     value will overwrite previous values.
     """
@@ -130,6 +134,9 @@ class Dict(Type):
 
         >>> Dict({'a': str, 'b': int})('a:asdf b=1234')
         {'a': 'asdf', 'b': 1234}
+
+        >>> Dict({'a': Int() | Keyword('', None), 'b': Int()})('a,b=1')
+        {'a': None, 'b': 1}
         """
         self.name = 'dict'
         self.validators = dict(validator_map)
@@ -156,7 +163,11 @@ class Dict(Type):
     def _convert(self, val):
         obj = {}
         for pair in list_regex.findall(val):
-            k, v = self.kv_regex.split(pair)
+            pair = self.kv_regex.split(pair)
+            if len(pair) == 1:
+                k, v = pair[0], ''
+            else:
+                k, v = pair
             assert k in self.validators
             val = self.validators[k](v)
             if k in obj:
