@@ -46,6 +46,12 @@ class ParsedArgsNamespace(object):
                 val = val(self)
                 self._keywords[key] = val
             return val
+   
+    def __dir__(self):
+        return sorted(set(dir(type(self)) + self._keywords + self._defaults))
+
+    def __repr__(self):
+        return 'ParsedArgsNamespace(%r, %r)' % (self._keywords, self._defaults)
 
 
 class ParsedArgs(object):
