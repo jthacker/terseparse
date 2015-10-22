@@ -219,6 +219,15 @@ class Dir(File):
 
 
 class Int(Type):
+    """Int: Integer parseing class that supports range restrictions
+    Supports automatic parsing of base 10 and 16 characters
+    >>> Int()('0xFF')
+    255
+    >>> Int()('1234')
+    1234
+    >>> Int()('01234')
+    1234
+    """
     @classproperty
     def u32(cls):
         obj = cls(0, 2**32)
@@ -253,7 +262,7 @@ class Int(Type):
     def convert(self, val_str):
         try:
             val = self._convert(val_str)
-        except ValueError:
+        except (ValueError, AssertionError):
             self.fail(val_str, self.error_message)
         if (self.minval is not None and val < self.minval) or (
                 self.maxval is not None and val >= self.maxval):
@@ -261,11 +270,15 @@ class Int(Type):
         return val
 
     def _convert(self, val):
+        # Not using int(val, 0) because that parses '011' to 9 (in octal), which
+        # is a bit misleading if you aren't use to the convention.
         try:
-            val = int(val, 10)
+            return int(val, 10)
         except ValueError:
-            val = int(val, 16)
-        return val
+            # have to check for '0x' otherwise 'abcd' would parse to 4391, which
+            # on first glance does not appear to be a number
+            assert '0x' in val.lower()
+            return int(val, 16)
 
 
 class Or(Type):

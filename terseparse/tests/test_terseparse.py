@@ -91,6 +91,8 @@ class TestTerseParseTypes(unittest.TestCase):
         self.assertEqual(t('-00'), 0)
         self.assertEqual(t('043'), 43)
 
+        assert_conv_fails(t, 'a')
+
     def test_Int_u32(self):
         t = types.Int.u32
         
