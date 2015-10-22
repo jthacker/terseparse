@@ -174,3 +174,16 @@ class TestTerseParseTypes(unittest.TestCase):
 
         self.assertEqual(t('a'), 'a')
         self.assertEqual(t('1234'), 1234)
+
+    def test_Set(self):
+        t = types.Set(types.Or('a', 'b', 'c'))
+        assert_conv_fails(t, 'd')
+        assert_conv_fails(t, 'a,b,c,d')
+
+        self.assertEqual(t('a'), set(('a',)))
+        self.assertEqual(t('a,b'), set(('a', 'b')))
+
+    def test_Set_duplicates(self):
+        t = types.Set(types.Or('a', 'b', 'c'))
+        
+        self.assertEqual(t('a,a,a,b'), set(('a','b')))
