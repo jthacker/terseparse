@@ -293,15 +293,19 @@ class Int(Type):
 
 
 class Or(Type):
-    '''Combine types in a shortcircuit fashion.
+    """Combine types in a shortcircuit fashion.
     The first type to match wins.
-    If an Or is one of the types then its nested types are flattened.'''
+    If an Or is one of the types then its nested types are flattened.
+    Automatically convert string to Keywords
+    """
     def __init__(self, *types):
         _types = []
         for typ in types:
             if isinstance(typ, Or):
                 _types.extend(typ.types)
             else:
+                if isinstance(typ, basestring):
+                    typ = Keyword(typ)
                 _types.append(typ)
 
         self.name = '|'.join(map(str, _types))

@@ -151,3 +151,26 @@ class TestTerseParseTypes(unittest.TestCase):
         self.assertEqual(t('a'), ['a'])
         self.assertEqual(t('b'), ['b'])
         self.assertEqual(t('a b'), ['a', 'b'])
+
+    def test_Keyword(self):
+        t = types.Keyword('a', 1)
+        assert_conv_fails(t, 'b')
+        assert_conv_fails(t, 1)
+
+        self.assertEqual(t('a'), 1)
+
+    def test_Or_string(self):
+        t = types.Or('a', 'b', 'c')
+        assert_conv_fails(t, 'd')
+        assert_conv_fails(t, '0')
+
+        self.assertEqual(t('a'), 'a')
+        self.assertEqual(t('b'), 'b')
+        self.assertEqual(t('c'), 'c')
+
+    def test_Or_string_syntax_sugar(self):
+        t = types.Int() | 'a'
+        assert_conv_fails(t, 'aa')
+
+        self.assertEqual(t('a'), 'a')
+        self.assertEqual(t('1234'), 1234)
