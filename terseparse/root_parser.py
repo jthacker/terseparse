@@ -35,6 +35,8 @@ class ParsedArgsNamespace(object):
         self._fields = set(self._keywords.keys() + self._defaults.keys())
     
     def __getattr__(self, key):
+        if key not in self._fields:
+            raise AttributeError('%r object has not attribute %r' % (type(self), key))
         val = self._keywords.get(key)
         if val is not None:
             if isinstance(val, Lazy):
@@ -47,7 +49,6 @@ class ParsedArgsNamespace(object):
                 val = val(self)
                 self._keywords[key] = val
             return val
-        return super(ParsedArgsNamespace, self).__getattr__(key)
 
     def __getitem__(self, key):
         return self.__getattr__(key)
@@ -67,15 +68,15 @@ class ParsedArgs(object):
         self.ns = ParsedArgsNamespace(keywords, defaults)
 
     def items(self):
-        return self.ns._keywords.items()
+        return self.ns._fields
 
     def pprint(self):
         spacer = ' ' * 4
         items = self.items()
-        arg_len = max(3, max(len(arg) for arg, val in items))
+        arg_len = max(3, max(len(name) for name in items))
         hfmt = '{:{}}'+spacer+'{}'
         lfmt = '{:{}}'+spacer+'{!r}'
-        msg = '\n'.join(lfmt.format(arg, arg_len, val) for arg, val in items)
+        msg = '\n'.join(lfmt.format(name, arg_len, self.ns[name]) for name in items)
         title = 'Parsed Arguments:'
         header =  hfmt.format('arg', arg_len, 'value') + '\n'
         header += hfmt.format('---', arg_len, '-----')

@@ -138,11 +138,10 @@ class Dict(Type):
         >>> Dict({'a': Int() | Keyword('', None), 'b': Int()})('a,b=1')
         {'a': None, 'b': 1}
         """
-        self.name = 'dict'
         self.validators = dict(validator_map)
         v_sorted = sorted(validator_map.iteritems(), key=lambda t: t[0])
         self.validator_descriptions = ['{}:<{}>'.format(k, v) for k, v in v_sorted]
-        self.summary = ', '.join(self.validator_descriptions)
+        self.name = 'dict({})'.format(', '.join(self.validator_descriptions))
         self.description = '\nDict options: \n  '
         self.description += '\n  '.join(self.validator_descriptions)
         self.kv_regex = re.compile(r'[=:]+')
@@ -175,6 +174,9 @@ class Dict(Type):
                          'new: {!r} old: {!r}'.format(k, val, obj[k]))
             obj[k] = val
         return obj
+
+    def __iter__(self):
+        return self.validators.iteritems()
 
 
 MODE_STRS = {
@@ -239,6 +241,20 @@ class Int(Type):
     >>> Int()('01234')
     1234
     """
+    @classproperty
+    def u8(cls):
+        obj = cls(0, 2**8)
+        obj.name = 'u8'
+        obj.description = 'unsigned 8-bit integer'
+        return obj
+    
+    @classproperty
+    def u16(cls):
+        obj = cls(0, 2**16)
+        obj.name = 'u16'
+        obj.description = 'unsigned 16-bit integer'
+        return obj
+
     @classproperty
     def u32(cls):
         obj = cls(0, 2**32)
