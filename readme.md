@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jthacker/terseparse.svg?branch=master)](https://travis-ci.org/jthacker/terseparse.svg?branch=master)
+[![Build Status](https://travis-ci.org/jthacker/terseparse.svg?branch=master)](https://travis-ci.org/jthacker/terseparse)
 
 # terseparse: Terse argument parsing
 Terseparse was designed for user friendly typing of arguments and constructing parsers with minimal boiler plate.
