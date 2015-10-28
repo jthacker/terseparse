@@ -15,7 +15,7 @@ $ pip install git+git://github.com/jthacker/terseparse.git@v1.0
 - Metavars are created automatically
 - Metavars provide type information
 - Subparser names and descriptions are displayed in help messages
-- Arguments in subparsers are added to all childer parsers
+- Arguments in subparsers are added to all children parsers
 - Debugging of the parser can be done at runtime
 - Unique namespace for arguments, no conflicts with other properties
 
