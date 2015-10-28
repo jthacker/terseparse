@@ -5,7 +5,7 @@ Terseparse was designed for user friendly typing of arguments and constructing p
 
 ## Install
 ```
-$ pip install git+git://github.com/jthacker/terseparse.git@v1.0
+$ pip install -e git+git://github.com/jthacker/terseparse.git@v1.0#egg=terseparse
 ```
 
 ## Features
