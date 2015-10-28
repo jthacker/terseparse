@@ -4,7 +4,7 @@ import logging
 import os
 from argparse import ArgumentTypeError
 
-from .utils import classproperty
+from .utils import classproperty, rep
 
 
 log = logging.getLogger('terseparse.types')
@@ -41,16 +41,30 @@ class GreedyType(Type):
     
 
 class Keyword(Type):
-    def __init__(self, key, *args):
-        self.name = key
-        self.key = key
-        self.value = key if len(args) != 1 else args[0]
-        self.description = "Keyword({!r})".format(key)
+    """A Keyword maps a string to a static value"""
+
+    def __init__(self, name, *value):
+        """Initialize Keywords
+        Args:
+            name  -- keyword name
+            value -- Optional value, otherwise name is used
+
+        value is setup as *value to detect if the parameter is supplied, while
+        still supporting None. If no value is supplied then name should be used.
+        If any value is supplied (even None), then that value is used instead
+        """
+        self.name = name
+        self.key = name
+        self.value = name if len(value) != 1 else value[0]
+        self.description = "Matches {!r} and maps it to {!r}".format(name, self.value)
 
     def convert(self, val):
         if val == self.key:
             return self.value
         self.fail(val, "Must be {!r}".format(self.key))
+
+    def __repr__(self):
+        return rep(self, 'name', 'value')
 
 
 class Str(Type):
@@ -63,6 +77,9 @@ class Str(Type):
     def convert(self, val):
         return str(val)
 
+    def __repr__(self):
+        return rep(self, 'name')
+
 
 class Bool(Type):
     """Convert string to bool"""
@@ -73,11 +90,24 @@ class Bool(Type):
     def __init__(self, val):
         return val.lower() in self.true_vals 
 
+    def __repr__(self):
+        return rep(self, 'name')
+
 
 class Set(Type):
+    """A Set is a comma separated list of unique values that satisfy the specified type.
+    >>> s = Set(Int())
+    Set(Int(minval=None, maxval=None))
+    >>> s('1,2,3,4')
+    {1,2,3,4}
+    >>> s('1,1,1,1')
+    {1}
+    """
+
     def __init__(self, typ):
         self.name = 'set(<{}>)'.format(typ)
-        self.description = self.name
+        self.description = 'A set is a comma separated list of unique values ' \
+                'of type <{}>.'.format(typ.name)
         self.typ = typ
 
     def convert(self, val):
@@ -89,11 +119,24 @@ class Set(Type):
                 self.fail(val, self.description + '\n' + str(e))
         return seq
 
+    def __repr__(self):
+        return rep(self, 'typ')
+
 
 class List(Type):
+    """A List is a comma separated list of values that satisfy the specified type
+    >>> l = List(Int())
+    List(Int(minval=None, maxval=None))
+    >>> l('1,2,3,4')
+    [1,2,3,4]
+    >>> l('1,1,1,1')
+    [1,1,1,1]
+    """
+
     def __init__(self, typ):
         self.name = 'list(<{}>)'.format(typ)
-        self.description = self.name
+        self.description = 'A list is a comma separated list of values of type <{}>.' \
+                .format(typ)
         self.typ = typ
 
     def convert(self, val):
@@ -104,6 +147,9 @@ class List(Type):
             except ArgumentTypeError as e:
                 self.fail(val, self.description + '\n' + str(e))
         return seq
+
+    def __repr__(self):
+        return rep(self, 'typ')
         
 
 class Dict(Type):
@@ -112,10 +158,15 @@ class Dict(Type):
     Key-value pairs can be separated by either a colon or and equals sign.
 
     The following will all parse to {'a': 'b', 'c': 'd'}
-    >>> 'a:b c:d'
-    >>> 'a=b,c=d'
-    >>> 'a:b, c=d'
-    >>> 'a=b,,,c=d'
+    >>> d = Dict({'a': Str, 'c': Str})
+    >>> d('a:b c:d')
+    {'a': 'b', 'c': 'd'}
+    >>> d('a=b,c=d')
+    {'a': 'b', 'c': 'd'}
+    >>> d('a:b, c=d')
+    {'a': 'b', 'c': 'd'}
+    >>> d('a=b,,,c=d')
+    {'a': 'b', 'c': 'd'}
 
     If no value is given, then it is passed to the validator as the empty string (ie '')
     >>> Dict({'a': Int() | Keyword('', None)})('a')
@@ -139,7 +190,7 @@ class Dict(Type):
         {'a': None, 'b': 1}
         """
         self.validators = dict(validator_map)
-        v_sorted = sorted(validator_map.iteritems(), key=lambda t: t[0])
+        v_sorted = sorted(self.validators.iteritems(), key=lambda t: t[0])
         self.validator_descriptions = ['{}:<{}>'.format(k, v) for k, v in v_sorted]
         self.name = 'dict({})'.format(', '.join(self.validator_descriptions))
         self.description = '\nDict options: \n  '
@@ -151,7 +202,6 @@ class Dict(Type):
         return Set(Or(*kws))
 
     def convert(self, val):
-        print(val)
         try:
             return self._convert(val)
         except (AssertionError, ValueError):
@@ -177,6 +227,9 @@ class Dict(Type):
 
     def __iter__(self):
         return self.validators.iteritems()
+
+    def __repr__(self):
+        return rep(self, validator_map=self.validators)
 
 
 MODE_STRS = {
@@ -210,6 +263,9 @@ class File(Type):
         except IOError:
             self.fail(val, 'Must be a {} file'.format(self.mode_str))
 
+    def __repr__(self):
+        return rep(self, 'mode')
+
 
 DIR_MODES = {
     'r': os.R_OK,
@@ -229,6 +285,9 @@ class Dir(File):
         if not os.access(val, self.mode):
             self.fail(val, 'Must be a {} directory'.format(self.mode_str))
         return val
+
+    def __repr__(self):
+        return rep(self, 'mode')
 
 
 class Int(Type):
@@ -276,15 +335,15 @@ class Int(Type):
         self.name = 'int'
         self.minval = minval
         self.maxval = maxval
-        self.domain = ''
+        domain = ''
         if minval is not None and maxval is not None:
-            self.domain = '{} <= val < {}'.format(minval, maxval)
+            domain = '{} <= val < {}'.format(minval, maxval)
         elif minval is not None:
-            self.domain = '{} <= val'.format(minval)
+            domain = '{} <= val'.format(minval)
         elif maxval is not None:
-            self.domain = 'val < {}'.format(maxval)
-        self.description = 'int({})'.format(self.domain) if self.domain else 'int'
-        self.error_message = "Must satisfy {}".format(self.domain)
+            domain = 'val < {}'.format(maxval)
+        self.description = 'int({})'.format(domain) if domain else 'int'
+        self.error_message = 'Value must satisfy: {}'.format(domain) if domain else ''
 
     def convert(self, val_str):
         try:
@@ -306,6 +365,9 @@ class Int(Type):
             # on first glance does not appear to be a number
             assert '0x' in val.lower()
             return int(val, 16)
+
+    def __repr__(self):
+        return rep(self, 'minval', 'maxval')
 
 
 class Or(Type):
@@ -335,3 +397,6 @@ class Or(Type):
             except ArgumentTypeError:
                 pass
         self.fail(val, 'Must be {}'.format(self.description))
+
+    def __repr__(self):
+        return rep(self, 'types')

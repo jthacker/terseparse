@@ -20,6 +20,11 @@ class CustomHelpFormatter(RawTextHelpFormatter):
 class Lazy(object):
     """Lazily load a default argument after the args have been parsed"""
     def __init__(self, val):
+        """Initialize a lazy object.
+        Args:
+            val -- if object is callable, it should take one parameter.
+                   The arguments namespace object is passed if callable.
+        """
         self.val = val
 
     def __call__(self, parsed_args_namespace):
@@ -67,16 +72,16 @@ class ParsedArgs(object):
     def __init__(self, keywords, defaults):
         self.ns = ParsedArgsNamespace(keywords, defaults)
 
-    def items(self):
+    def names(self):
         return self.ns._fields
 
     def pprint(self):
         spacer = ' ' * 4
-        items = self.items()
-        arg_len = max(3, max(len(name) for name in items))
+        names = self.names()
+        arg_len = max(3, max(map(len, names)))
         hfmt = '{:{}}'+spacer+'{}'
         lfmt = '{:{}}'+spacer+'{!r}'
-        msg = '\n'.join(lfmt.format(name, arg_len, self.ns[name]) for name in items)
+        msg = '\n'.join(lfmt.format(name, arg_len, self.ns[name]) for name in names)
         title = 'Parsed Arguments:'
         header =  hfmt.format('arg', arg_len, 'value') + '\n'
         header += hfmt.format('---', arg_len, '-----')
