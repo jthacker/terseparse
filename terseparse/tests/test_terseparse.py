@@ -26,7 +26,7 @@ class TestTerseParse(unittest.TestCase):
                 'cmd', 'cmd-description',
                 SubParsers('sp1', 'sp1-description'),
                 SubParsers('sp2', 'sp2-description'))
-    
+
     def test_subparser_common_args(self):
         p = Parser(
             'cmd', 'cmd-description',
@@ -41,7 +41,7 @@ class TestTerseParse(unittest.TestCase):
         self.assertEqual(args.ns.sp, 'p0')
         self.assertEqual(args.ns.arg0, '1')
         self.assertEqual(args.ns.arg1, '2')
-        
+
         parser, args = p.parse_args('p1 a b c'.split())
         self.assertEqual(args.ns.sp, 'p1')
         self.assertEqual(args.ns.arg0, 'a')
@@ -95,7 +95,7 @@ class TestTerseParseTypes(unittest.TestCase):
 
     def test_Int_u32(self):
         t = types.Int.u32
-        
+
         self.assertEqual(t('0'), 0)
         self.assertEqual(t('0xFFFFFFFF'), 2**32 - 1)
 
@@ -185,5 +185,5 @@ class TestTerseParseTypes(unittest.TestCase):
 
     def test_Set_duplicates(self):
         t = types.Set(types.Or('a', 'b', 'c'))
-        
+
         self.assertEqual(t('a,a,a,b'), set(('a','b')))

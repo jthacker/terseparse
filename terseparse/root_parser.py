@@ -38,7 +38,7 @@ class ParsedArgsNamespace(object):
         self._keywords = keywords
         self._defaults = defaults or {}
         self._fields = set(self._keywords.keys() + self._defaults.keys())
-    
+
     def __getattr__(self, key):
         if key not in self._fields:
             raise AttributeError('%r object has not attribute %r' % (type(self), key))
@@ -55,12 +55,15 @@ class ParsedArgsNamespace(object):
                 self._keywords[key] = val
             return val
 
+    def __contains__(self, key):
+        return key in self._fields
+
     def __getitem__(self, key):
         return self.__getattr__(key)
 
     def __iter__(self):
         return iter((k, self[k]) for k in self._fields)
-   
+
     def __dir__(self):
         return sorted(set(dir(type(self)) + self._fields))
 
@@ -89,7 +92,7 @@ class ParsedArgs(object):
         print('=' * len(title))
         print(header)
         print(msg)
-    
+
 
 class RootParser(ArgumentParser):
     """Private Class."""
@@ -102,12 +105,6 @@ class RootParser(ArgumentParser):
         super(RootParser, self).__init__(*args, **kwargs)
         self._debug = False
 
-    """
-    def print_usage(self, *args, **kwargs):
-        '''overrides print_usage method to always produce verbose output'''
-        self.print_help(*args, **kwargs)
-    """
-  
     def error(self, message):
         """Overrides error to control printing output"""
         if self._debug:

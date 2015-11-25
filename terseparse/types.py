@@ -18,7 +18,7 @@ class Type(object):
     Types are callable, taking a string and converting it
     to their given type. The call method should have no side effects.
     """
-    
+
     def __call__(self, val):
         return self.convert(val)
 
@@ -38,7 +38,7 @@ class Type(object):
 
 class GreedyType(Type):
     """Mixin to indicate that a type will greedily consume arguments."""
-    
+
 
 class Keyword(Type):
     """A Keyword maps a string to a static value"""
@@ -88,7 +88,7 @@ class Bool(Type):
         self.true_vals = ('true', 't', '1', 'yes')
 
     def __init__(self, val):
-        return val.lower() in self.true_vals 
+        return val.lower() in self.true_vals
 
     def __repr__(self):
         return rep(self, 'name')
@@ -140,7 +140,7 @@ class List(Type):
         self.typ = typ
 
     def convert(self, val):
-        seq = list() 
+        seq = list()
         for k in list_regex.findall(val):
             try:
                 seq.append(self.typ(k))
@@ -150,7 +150,7 @@ class List(Type):
 
     def __repr__(self):
         return rep(self, 'typ')
-        
+
 
 class Dict(Type):
     """Converts a string to a dictionary
@@ -250,7 +250,7 @@ class File(Type):
     @classproperty
     def w(cls):
         return cls('w')
-    
+
     def __init__(self, mode):
         self.name = 'file'
         self.mode = mode
@@ -306,7 +306,7 @@ class Int(Type):
         obj.name = 'u8'
         obj.description = 'unsigned 8-bit integer'
         return obj
-    
+
     @classproperty
     def u16(cls):
         obj = cls(0, 2**16)
