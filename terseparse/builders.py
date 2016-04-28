@@ -23,8 +23,8 @@ Changes from argparse are as follows:
     * Debugging information can be enabled with '--terseparse-debug' as first argument
 """
 
-import sys
 from argparse import SUPPRESS
+import sys
 
 from .root_parser import RootParser
 
@@ -48,7 +48,7 @@ class AbstractParser(object):
     """ABC for Parser objects.
     Parser objects can hold Arg and SubParsers.
     Do not update any instance local state outside of init.
-    """ 
+    """
     def __init__(self, name, description, *args):
         self._name = name
         self._description = description
@@ -104,7 +104,7 @@ class Parser(AbstractParser):
         for arg in self.args:
             arg(p)
         return p
-   
+
     @property
     def subparser(self):
         return self._subparser
@@ -162,7 +162,7 @@ class SubParsers(AbstractParser):
         self._args = args
         for parser in self.parsers:
             parser._args = self._args + parser._args
-            
+
     def _build(self, parser, kwargs):
         sp = parser.add_subparsers(title=self.name, **kwargs)
         for parser in self.parsers:
@@ -221,7 +221,11 @@ class Arg(object):
         if self.hidden:
             kwargs['help'] = SUPPRESS
         kwargs['default'] = self.default
-        action = parser.add_argument(self.name, **kwargs)
+        if isinstance(self.name, basestring):
+            names = [self.name]
+        else:
+            names = self.name
+        action = parser.add_argument(*names, **kwargs)
         if action.nargs != 0:
             if self.type:
                 type_str = '<{}>'.format(str(self.type))
