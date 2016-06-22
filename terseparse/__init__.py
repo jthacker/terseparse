@@ -12,5 +12,3 @@ __all__ = [
     Parser,
     SubParsers,
     types]
-
-__version__ = "1.0.3"

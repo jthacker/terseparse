@@ -2,3 +2,7 @@ MANIFEST
 dist
 *.swp
 *.pyc
+*.egg-info
+.eggs
+.cache
+.tox

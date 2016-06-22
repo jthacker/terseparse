@@ -190,7 +190,7 @@ class Dict(Type):
         {'a': None, 'b': 1}
         """
         self.validators = dict(validator_map)
-        v_sorted = sorted(self.validators.iteritems(), key=lambda t: t[0])
+        v_sorted = sorted(self.validators.items(), key=lambda t: t[0])
         self.validator_descriptions = ['{}:<{}>'.format(k, v) for k, v in v_sorted]
         self.name = 'dict({})'.format(', '.join(self.validator_descriptions))
         self.description = '\nDict options: \n  '
@@ -226,7 +226,7 @@ class Dict(Type):
         return obj
 
     def __iter__(self):
-        return self.validators.iteritems()
+        return self.validators.items()
 
     def __repr__(self):
         return rep(self, validator_map=self.validators)
@@ -259,7 +259,7 @@ class File(Type):
 
     def convert(self, val):
         try:
-            return file(val, self.mode)
+            return open(val, self.mode)
         except IOError:
             self.fail(val, 'Must be a {} file'.format(self.mode_str))
 
@@ -382,7 +382,7 @@ class Or(Type):
             if isinstance(typ, Or):
                 _types.extend(typ.types)
             else:
-                if isinstance(typ, basestring):
+                if isinstance(typ, str):
                     typ = Keyword(typ)
                 _types.append(typ)
 

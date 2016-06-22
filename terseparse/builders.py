@@ -24,6 +24,8 @@ Changes from argparse are as follows:
 """
 
 from argparse import SUPPRESS
+import six
+
 import sys
 
 from .root_parser import RootParser
@@ -71,7 +73,7 @@ class AbstractParser(object):
         return self._build(parser, self._updated_kwargs(kwargs))
 
     def _updated_kwargs(self, kwargs):
-        return dict(self._kwargs.items() + kwargs.items())
+        return dict(list(self._kwargs.items()) + list(kwargs.items()))
 
     def _build(self, **kwargs):
         raise NotImplemented()
@@ -216,12 +218,12 @@ class Arg(object):
                 kwargs['help'] = type_str + ' ' + self.help
             else:
                 kwargs['help'] = self.help
-        for k, v in _kwargs.iteritems():
+        for k, v in _kwargs.items():
             kwargs[k] = v
         if self.hidden:
             kwargs['help'] = SUPPRESS
         kwargs['default'] = self.default
-        if isinstance(self.name, basestring):
+        if isinstance(self.name, six.string_types):
             names = [self.name]
         else:
             names = self.name

@@ -37,7 +37,7 @@ class ParsedArgsNamespace(object):
     def __init__(self, keywords, defaults):
         self._keywords = keywords
         self._defaults = defaults or {}
-        self._fields = set(self._keywords.keys() + self._defaults.keys())
+        self._fields = set(list(self._keywords.keys()) + list(self._defaults.keys()))
 
     def __getattr__(self, key):
         if key not in self._fields:

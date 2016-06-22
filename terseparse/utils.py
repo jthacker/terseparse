@@ -27,6 +27,6 @@ def rep(obj, *attrs, **kwargs):
     Returns: A string representing the class
     """
     s = obj.__class__.__name__
-    args = chain(((attr, getattr(obj, attr)) for attr in attrs), kwargs.iteritems())
+    args = chain(((attr, getattr(obj, attr)) for attr in attrs), kwargs.items())
     s += '(%s)' % ','.join('{}={!r}'.format(k, v) for k, v in args)
     return s
