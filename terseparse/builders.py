@@ -28,7 +28,7 @@ import six
 
 import sys
 
-from .root_parser import RootParser
+from terseparse.root_parser import RootParser
 
 
 class KW(object):
