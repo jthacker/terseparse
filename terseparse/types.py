@@ -4,7 +4,7 @@ import logging
 import os
 from argparse import ArgumentTypeError
 
-from .utils import classproperty, rep
+from terseparse.utils import classproperty, rep
 
 
 log = logging.getLogger('terseparse.types')
