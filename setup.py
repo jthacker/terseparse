@@ -3,6 +3,14 @@ from setuptools import setup
 # Load __version__ without importing it (avoids race condition with build)
 exec(open('terseparse/version.py').read())
 
+test_deps = [
+    'pytest'
+]
+
+extras = {
+    'test': test_deps
+}
+
 setup(name='terseparse',
       description='A minimal boilerplate, composeable wrapper for argument parsing',
       packages=['terseparse'],
@@ -16,12 +24,11 @@ setup(name='terseparse',
       install_requires=[
           'six >= 1.16'
           ],
-      tests_require=[
-          'pytest'
-          ],
+      tests_require=test_deps,
       setup_requires=[
           'pytest-runner'
           ],
+      extras_require=extras,
       long_description="""
 How to Install
 --------------
