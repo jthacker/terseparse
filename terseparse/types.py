@@ -259,7 +259,8 @@ class File(Type):
 
     def convert(self, val):
         try:
-            return open(val, self.mode)
+            with open(val, self.mode):
+                return val
         except IOError:
             self.fail(val, 'Must be a {} file'.format(self.mode_str))
 
