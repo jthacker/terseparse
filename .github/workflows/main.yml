@@ -1,0 +1,57 @@
+name: CI
+on: pull_request
+jobs:
+  test-py27:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        python-version: ["2.7"]
+    steps:
+      - name: Py2 testing
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          # Required to keep setuptools compatible with py2.7
+          pip install setuptools==44.1.1
+          pip install .[test]
+          pytest
+  test-py3:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+      - name: Py3 testing
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          pip install .[test]
+          pytest
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Build and publish
+        uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - run: |
+          python -m pip install build --user
+          python -m build --sdist --wheel --outdir dist/ .
+      - name: Publish distribution to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+      - name: Publish distribution to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
