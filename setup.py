@@ -14,7 +14,7 @@ setup(name='terseparse',
       keywords=['argument', 'parsing'],
       classifiers=[],
       install_requires=[
-          'six >= 1.10.0'
+          'six >= 1.16'
           ],
       tests_require=[
           'pytest'
