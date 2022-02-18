@@ -1,14 +1,17 @@
 [![Build Status](https://travis-ci.org/jthacker/terseparse.svg?branch=master)](https://travis-ci.org/jthacker/terseparse)
 
 # terseparse: Terse argument parsing
+
 Terseparse was designed for user friendly typing of arguments and constructing parsers with minimal boiler plate.
 
 ## Install
+
 ```
 $ pip install terseparse
 ```
 
 ## Features
+
 - A composable syntax for constructing parsers
 - Extensive set of types with helpful error messages
 - All arguments and parsers require documentation strings
@@ -19,9 +22,10 @@ $ pip install terseparse
 - Debugging of the parser can be done at runtime
 - Unique namespace for arguments, no conflicts with other properties
 
-
 ## Usage
+
 This example is taken from the argparse [documentation](https://docs.python.org/3/library/argparse.html#example)
+
 ```python
 p = Parser('cmd', 'Process some integers',
     Arg('integers', 'an integer for the accumulator',
@@ -34,13 +38,22 @@ print(args.ns.integers)
 ```
 
 ### Argument Namespace
+
 Unlike argparse, arguments are stored in a unique namespace under args.ns.
 This is done to avoid conflicts between existing methods in args and parameter
 values being parsed (e.g. .keys() would conflict with a keys parameter).
 
-
-
 ### Debugging
+
 Terseparse argument parsing can be debugged by passing in --terseparse-debug
 as the first argument. It must be the first argument so that the parsing of the rest
 of the arguments can take place as they are parsed.
+
+## Development
+
+### Release
+
+- Bump the version in `terserparsse/version.py`.
+- Merge to master.
+- Push the corresponding tag.
+- Github actions pushes to pypi.
