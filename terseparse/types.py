@@ -235,7 +235,7 @@ class Dict(Type):
 MODE_STRS = {
     'r': 'readable',
     'w': 'writable',
-    'rw': 'readable and writeable'}
+    'r+': 'readable and writeable'}
 
 
 class File(Type):
@@ -245,7 +245,7 @@ class File(Type):
 
     @classproperty
     def rw(cls):
-        return cls('rw')
+        return cls('r+')
 
     @classproperty
     def w(cls):
