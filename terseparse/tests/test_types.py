@@ -1,5 +1,8 @@
+from argparse import ArgumentTypeError
 from . import assert_conv_fails
 from terseparse import types
+
+import pytest
 
 def test_Int():
     t = types.Int(-0xF, 0x10)
@@ -115,3 +118,8 @@ def test_Set_duplicates():
     t = types.Set(types.Or('a', 'b', 'c'))
 
     assert t('a,a,a,b') == set(('a','b'))
+
+def test_file():
+    t = types.File.rw
+    with pytest.raises(ArgumentTypeError):
+        t("non-existant-file")
