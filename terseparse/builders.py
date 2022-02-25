@@ -27,6 +27,7 @@ from argparse import SUPPRESS
 import six
 
 import sys
+import warnings
 
 from terseparse.root_parser import RootParser
 
@@ -166,10 +167,18 @@ class SubParsers(AbstractParser):
             parser._args = self._args + parser._args
 
     def _build(self, parser, kwargs):
+        # python 2-3 compatible change
+        # see https://stackoverflow.com/a/22994500/9899650
+        if "dest" not in kwargs:
+            kwargs["dest"] = self._name
         sp = parser.add_subparsers(title=self.name, **kwargs)
+        # python 2-3 compatible change
+        # see https://stackoverflow.com/a/23354355/9899650
+        if "required" not in kwargs:
+            sp.required = True
         for parser in self.parsers:
-            p = parser(sp)
-        return p
+            parser(sp)
+        return sp
 
     @property
     def parsers(self):
