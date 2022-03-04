@@ -53,7 +53,7 @@ of the arguments can take place as they are parsed.
 
 ### Release
 
-- Bump the version in `terserparsse/version.py`.
+- Bump the version in `terseparse/version.py`.
 - Merge to master.
 - Push the corresponding tag.
 - Github actions pushes to pypi.
